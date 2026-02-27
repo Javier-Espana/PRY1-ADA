@@ -90,13 +90,14 @@ $$F(n) = \Theta(\varphi^n)$$
 
 ### 3.3 Complejidad Final
 
-Combinando los resultados:
+Combinando los resultados y la verificación empírica:
 
-$$\boxed{T(n) = O(n \cdot F(n)) = O(n \cdot \varphi^n)}$$
+$$\boxed{T(n) = O(\varphi^{2n}) \approx O(2.618^n)}$$
 
 Esta es una **complejidad exponencial**, donde:
-- El factor $n$ proviene de las iteraciones y operaciones de búsqueda en la cinta
-- El factor $\varphi^n$ proviene del tamaño de los números de Fibonacci que se manipulan
+- El factor exponencial base $\varphi^n$ proviene del tamaño de los números de Fibonacci
+- El factor adicional $\varphi^n$ proviene del trabajo requerido para manipular esos números en representación unaria
+- Resultado: $\varphi^n \cdot \varphi^n = \varphi^{2n} \approx 2.618^n$
 
 ---
 
@@ -104,33 +105,45 @@ Esta es una **complejidad exponencial**, donde:
 
 ### 4.1 Datos Experimentales
 
-| n | Pasos (T) | F(n) | n × F(n) | T / (n × F(n)) |
-|---|-----------|------|----------|----------------|
-| 0 | 1 | 0 | 0 | - |
-| 1 | 3 | 1 | 1 | 3.00 |
-| 2 | 4 | 1 | 2 | 2.00 |
-| 3 | 42 | 2 | 6 | 7.00 |
-| 4 | 96 | 3 | 12 | 8.00 |
-| 5 | 202 | 5 | 25 | 8.08 |
-| 6 | 402 | 8 | 48 | 8.38 |
-| 7 | 736 | 13 | 91 | 8.09 |
-| 8 | 1262 | 21 | 168 | 7.51 |
-| 9 | 2046 | 34 | 306 | 6.69 |
-| 10 | 3168 | 55 | 550 | 5.76 |
+| n | Pasos (T) | F(n) | Ratio T(n)/T(n-1) | Tiempo (s) |
+|---|-----------|------|-------------------|------------|
+| 0 | 1 | 0 | - | 0.000005 |
+| 1 | 19 | 1 | 19.00 | 0.000077 |
+| 2 | 53 | 1 | 2.79 | 0.00017 |
+| 3 | 109 | 2 | 2.06 | 0.00040 |
+| 4 | 191 | 3 | 1.75 | 0.00071 |
+| 5 | 331 | 5 | 1.73 | 0.0015 |
+| 6 | 585 | 8 | 1.77 | 0.0030 |
+| 7 | 1,105 | 13 | 1.89 | 0.0068 |
+| 8 | 2,255 | 21 | 2.04 | 0.020 |
+| 9 | 4,971 | 34 | 2.20 | 0.055 |
+| 10 | 11,641 | 55 | 2.34 | 0.15 |
+| 11 | 28,449 | 89 | 2.44 | 0.55 |
+| 12 | 71,443 | 144 | 2.51 | 2.26 |
+| 13 | 182,439 | 233 | 2.55 | 9.99 |
+| 14 | 470,561 | 377 | 2.58 | 49.4 |
+| 15 | 1,220,961 | 610 | 2.59 | 207.4 |
 
-### 4.2 Análisis de la Constante
+### 4.2 Análisis del Crecimiento
 
-El cociente $\frac{T(n)}{n \cdot F(n)}$ se mantiene relativamente constante (entre 5 y 9), lo que confirma que:
+El **ratio de crecimiento** $\frac{T(n)}{T(n-1)}$ converge hacia un valor cercano a **2.59**, lo que confirma el comportamiento exponencial:
 
-$$T(n) = c \cdot n \cdot F(n)$$
+$$T(n) \approx c \cdot r^n \quad \text{donde } r \approx 2.59$$
 
-para alguna constante $c \approx 7$.
+Este valor es mayor que $\varphi \approx 1.618$ porque cada iteración requiere trabajo proporcional a los números de Fibonacci que se manipulan (en representación unaria), haciendo que el crecimiento sea aproximadamente $\varphi^2 \approx 2.618$.
 
 ### 4.3 Verificación del Crecimiento Exponencial
 
-Si graficamos $\log(T(n))$ vs $n$, deberíamos ver una línea aproximadamente recta con pendiente $\log(\varphi) \approx 0.48$.
+Los datos muestran claramente un **crecimiento exponencial**:
 
-Esto se confirma en nuestro diagrama de dispersión, donde los pasos crecen exponencialmente con $n$.
+- **De n=10 a n=15**: Los pasos aumentan de 11,641 a 1,220,961 (factor de ~105x)
+- **De n=12 a n=15**: El tiempo aumenta de 2.26s a 207.4s (factor de ~92x)
+
+El análisis de regresión exponencial confirma que:
+
+$$T(n) = O(\varphi^{2n}) \approx O(2.618^n)$$
+
+Esto se visualiza en el gráfico de pasos vs n, donde la curva muestra el característico crecimiento exponencial.
 
 ---
 
@@ -138,14 +151,15 @@ Esto se confirma en nuestro diagrama de dispersión, donde los pasos crecen expo
 
 | Implementación | Complejidad Temporal | Complejidad Espacial |
 |----------------|---------------------|---------------------|
-| **MT de una cinta (este proyecto)** | $O(n \cdot \varphi^n)$ | $O(\varphi^n)$ |
+| **MT de una cinta (este proyecto)** | $O(\varphi^{2n}) \approx O(2.618^n)$ | $O(\varphi^n)$ |
 | Recursión ingenua | $O(\varphi^n)$ | $O(n)$ |
 | Programación dinámica | $O(n)$ | $O(n)$ o $O(1)$ |
 | Exponenciación de matrices | $O(\log n)$ | $O(1)$ |
 
-La máquina de Turing tiene un factor adicional de $n$ debido a:
+La máquina de Turing tiene un factor adicional $\varphi^n$ (comparada con recursión ingenua) debido a:
 1. La representación unaria de los números
-2. La necesidad de recorrer la cinta para cada operación
+2. La necesidad de recorrer la cinta completa para cada operación de copia/suma
+3. La longitud de los números de Fibonacci crece como $O(\varphi^n)$
 
 ---
 
@@ -153,13 +167,17 @@ La máquina de Turing tiene un factor adicional de $n$ debido a:
 
 La Máquina de Turing diseñada para calcular la sucesión de Fibonacci tiene una complejidad temporal de:
 
-$$\boxed{T(n) = O(n \cdot \varphi^n) \approx O(n \cdot 1.618^n)}$$
+$$\boxed{T(n) = O(\varphi^{2n}) \approx O(2.618^n)}$$
 
 Esta complejidad exponencial es inherente al problema cuando se utilizan:
 - Representación unaria de números
 - Una máquina de Turing determinista de una sola cinta
+- Operaciones de copia y suma que requieren recorrer toda la representación
 
-La verificación empírica mediante mediciones de tiempo y pasos confirma este análisis teórico, mostrando un crecimiento exponencial consistente con la proporción áurea.
+La verificación empírica confirma este análisis teórico:
+- El ratio de crecimiento $T(n)/T(n-1)$ converge a ~2.59 ≈ $\varphi^2$
+- Para n=15, la máquina realiza más de **1.2 millones de pasos** en ~3.5 minutos
+- El crecimiento exponencial hace impráctica la computación para n > 15
 
 ---
 
