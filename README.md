@@ -72,16 +72,66 @@ python src/simulator.py maquinas/fibonacci.json 11111
 
 # Usando número decimal (se convierte automáticamente)
 python src/simulator.py maquinas/fibonacci.json 5
+
+# Modo silencioso (sin mostrar pasos)
+python src/simulator.py maquinas/fibonacci.json 5 0
 ```
 
-### Análisis Empírico
+### Análisis Empírico de Rendimiento
+
+El análisis empírico mide pasos y tiempos de ejecución para diferentes valores de n, demostrando la complejidad exponencial O(φⁿ).
 
 ```bash
-# Ejecutar mediciones
+# Ejecutar análisis completo (puede tomar varios minutos para n grandes)
 python src/analysis.py
+```
 
-# Generar gráficos
+**Salida esperada:**
+```
+============================================================
+ANÁLISIS EMPÍRICO - Complejidad Exponencial O(φⁿ)
+============================================================
+Límite de tiempo por medición: 60.0s
+Rango de n: 0 a 15
+------------------------------------------------------------
+[n= 0] Midiendo (3x)... F(0)=    0, Pasos=         1, Tiempo=      0.01ms
+[n= 5] Midiendo (3x)... F(5)=    5, Pasos=       331, Tiempo=      1.45ms
+[n=10] Midiendo (3x)... F(10)=  55, Pasos=    11,641, Tiempo=    154.28ms
+[n=12] Midiendo (2x)... F(12)= 144, Pasos=    71,443, Tiempo=   2261.43ms
+...
+```
+
+Los resultados se guardan automáticamente en `resultados/analysis_*.json`.
+
+### Generación de Gráficos
+
+Genera diagramas de dispersión con regresión exponencial y análisis de convergencia del ratio.
+
+```bash
+# Generar gráficos desde los últimos resultados
 python src/plotting.py
+
+# Generar gráficos desde un archivo específico
+python src/plotting.py resultados/analysis_20260227_125346.json
+```
+
+**Gráficos generados:**
+- `grafico_steps_*.png` - Pasos vs n (escala lineal y logarítmica)
+- `grafico_time_*.png` - Tiempo vs n (escala lineal y logarítmica)
+- `grafico_ratio_*.png` - Convergencia del ratio hacia φ
+
+### Generación de Diagramas de la MT
+
+```bash
+# Generar diagramas Mermaid y DOT desde la configuración
+python src/diagram_generator.py
+
+# Los diagramas se guardan en diagramas/
+```
+
+Para visualizar el diagrama DOT como imagen:
+```bash
+dot -Tpng diagramas/fibonacci_diagrama.dot -o diagramas/fibonacci_diagrama.png
 ```
 
 ## Convenciones
