@@ -1,0 +1,53 @@
+digraph TuringMachine {
+    rankdir=LR;
+    size="14,10";
+    node [shape=circle, fontname="Helvetica", fontsize=10];
+    edge [fontname="Helvetica", fontsize=9];
+
+    start [shape=point, width=0];
+    start -> q0;
+
+    node [shape=doublecircle]; qaccept;
+    node [shape=circle];
+
+    q0 -> qParE [label="1/1,R"];
+    q0 -> qaccept [label="β/β,S"];
+    qBuscar -> qCop1 [label=";/;,L"];
+    qCerr -> qRet [label="β/;,L"];
+    qChkC -> qChkC [label="x/x,R"];
+    qChkC -> qIrFin [label="1/x,R"];
+    qChkC -> qaccept [label="./.,R"];
+    qCop1 -> qCop2 [label=";/;,L\n./.,L"];
+    qCop1 -> qDep1 [label="1/y,R"];
+    qCop2 -> qDep2 [label="1/z,R"];
+    qCop2 -> qFinC [label=";/;,R\n./.,R"];
+    qDep1 -> qDep1 [label="1/1,R\n;/;,R\ny/y,R\n./.,R"];
+    qDep1 -> qRet1 [label="β/1,L"];
+    qDep2 -> qDep2 [label="1/1,R\n;/;,R\ny/y,R\n... (+2 más)"];
+    qDep2 -> qRet2 [label="β/1,L"];
+    qEsc0 -> qEsc1 [label="β/;,R"];
+    qEsc1 -> qCerr [label="β/1,R"];
+    qFibIni -> qMuro [label="1/x,L"];
+    qFinC -> qFinC [label="1/1,R\n;/;,R"];
+    qFinC -> qRet [label="β/;,L"];
+    qIrFin -> qBuscar [label="β/β,L"];
+    qIrFin -> qIrFin [label="1/1,R\n./.,R\n;/;,R"];
+    qLoop -> qChkC [label="#/#,R"];
+    qMuro -> qScan [label="β/#,R"];
+    qParE -> qParO [label="1/1,R"];
+    qParE -> qRewE [label="β/β,L"];
+    qParO -> qParE [label="1/1,R"];
+    qParO -> qRewO [label="β/β,L"];
+    qRet -> qLoop [label="#/#,S"];
+    qRet -> qRet [label=";/;,L\n1/1,L\n./.,L\nx/x,L"];
+    qRet1 -> qCop1 [label="y/1,L"];
+    qRet1 -> qRet1 [label="1/1,L\n;/;,L"];
+    qRet2 -> qCop2 [label="z/1,L"];
+    qRet2 -> qRet2 [label="1/1,L\n;/;,L"];
+    qRewE -> qFibIni [label="β/β,R"];
+    qRewE -> qRewE [label="1/1,L"];
+    qRewO -> qFibIni [label="β/β,R"];
+    qRewO -> qRewO [label="1/1,L"];
+    qScan -> qEsc0 [label="β/.,R"];
+    qScan -> qScan [label="x/x,R\n1/1,R"];
+}

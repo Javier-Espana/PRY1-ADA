@@ -1,0 +1,196 @@
+{
+    "nombre": "Máquina de Turing - Fibonacci (Cinta Única)",
+    "descripcion": "Calcula F(n) usando una sola cinta. Símbolos: 1=unario, #=inicio, .=zona trabajo, ;=separador términos, x=contador usado, y/z=marcadores temporales",
+    "version": "single-tape-v1",
+    
+    "alfabeto_entrada": ["1"],
+    "alfabeto_cinta": ["1", "_", "#", ".", ";", "x", "y", "z"],
+    "simbolo_blanco": "_",
+    
+    "estados": [
+        "q0",
+        "qParE", "qParO",
+        "qRewE", "qRewO",
+        "qFibIni",
+        "qMuro",
+        "qScan",
+        "qEsc0", "qEsc1", "qCerr",
+        "qRet",
+        "qLoop",
+        "qChkC",
+        "qIrFin",
+        "qBuscar",
+        "qCop1", "qDep1", "qRet1",
+        "qCop2", "qDep2", "qRet2",
+        "qFinC",
+        "qaccept"
+    ],
+    "estado_inicial": "q0",
+    "estados_aceptacion": ["qaccept"],
+    "estados_rechazo": [],
+    
+    "transiciones": {
+        "q0": {
+            "1": ["qParE", "1", "R"],
+            "_": ["qaccept", "_", "S"]
+        },
+        
+        "qParE": {
+            "1": ["qParO", "1", "R"],
+            "_": ["qRewE", "_", "L"]
+        },
+        "qParO": {
+            "1": ["qParE", "1", "R"],
+            "_": ["qRewO", "_", "L"]
+        },
+        
+        "qRewE": {
+            "1": ["qRewE", "1", "L"],
+            "_": ["qFibIni", "_", "R"]
+        },
+        "qRewO": {
+            "1": ["qRewO", "1", "L"],
+            "_": ["qFibIni", "_", "R"]
+        },
+        
+        "qFibIni": {
+            "1": ["qMuro", "x", "L"]
+        },
+        
+        "qMuro": {
+            "_": ["qScan", "#", "R"]
+        },
+        
+        "qScan": {
+            "x": ["qScan", "x", "R"],
+            "1": ["qScan", "1", "R"],
+            "_": ["qEsc0", ".", "R"]
+        },
+        
+        "qEsc0": {
+            "_": ["qEsc1", ";", "R"]
+        },
+        
+        "qEsc1": {
+            "_": ["qCerr", "1", "R"]
+        },
+        
+        "qCerr": {
+            "_": ["qRet", ";", "L"]
+        },
+        
+        "qRet": {
+            ";": ["qRet", ";", "L"],
+            "1": ["qRet", "1", "L"],
+            ".": ["qRet", ".", "L"],
+            "x": ["qRet", "x", "L"],
+            "#": ["qLoop", "#", "S"]
+        },
+        
+        "qLoop": {
+            "#": ["qChkC", "#", "R"]
+        },
+        
+        "qChkC": {
+            "1": ["qIrFin", "x", "R"],
+            ".": ["qaccept", ".", "R"],
+            "x": ["qChkC", "x", "R"]
+        },
+        
+        "qIrFin": {
+            "1": ["qIrFin", "1", "R"],
+            ".": ["qIrFin", ".", "R"],
+            ";": ["qIrFin", ";", "R"],
+            "_": ["qBuscar", "_", "L"]
+        },
+        
+        "qBuscar": {
+            ";": ["qCop1", ";", "L"]
+        },
+        
+        "qCop1": {
+            "1": ["qDep1", "y", "R"],
+            ";": ["qCop2", ";", "L"],
+            ".": ["qCop2", ".", "L"]
+        },
+        
+        "qDep1": {
+            "1": ["qDep1", "1", "R"],
+            ";": ["qDep1", ";", "R"],
+            "y": ["qDep1", "y", "R"],
+            ".": ["qDep1", ".", "R"],
+            "_": ["qRet1", "1", "L"]
+        },
+        
+        "qRet1": {
+            "1": ["qRet1", "1", "L"],
+            ";": ["qRet1", ";", "L"],
+            "y": ["qCop1", "1", "L"]
+        },
+        
+        "qCop2": {
+            "1": ["qDep2", "z", "R"],
+            ";": ["qFinC", ";", "R"],
+            ".": ["qFinC", ".", "R"]
+        },
+        
+        "qDep2": {
+            "1": ["qDep2", "1", "R"],
+            ";": ["qDep2", ";", "R"],
+            "y": ["qDep2", "y", "R"],
+            "z": ["qDep2", "z", "R"],
+            ".": ["qDep2", ".", "R"],
+            "_": ["qRet2", "1", "L"]
+        },
+        
+        "qRet2": {
+            "1": ["qRet2", "1", "L"],
+            ";": ["qRet2", ";", "L"],
+            "z": ["qCop2", "1", "L"]
+        },
+        
+        "qFinC": {
+            "1": ["qFinC", "1", "R"],
+            ";": ["qFinC", ";", "R"],
+            "_": ["qRet", ";", "L"]
+        }
+    },
+    
+    "descripcion_estados": {
+        "q0": "Estado inicial - verifica si hay entrada",
+        "qParE": "Verificar paridad - conteo par",
+        "qParO": "Verificar paridad - conteo impar",
+        "qRewE": "Rebobinar al inicio (paridad par)",
+        "qRewO": "Rebobinar al inicio (paridad impar)",
+        "qFibIni": "Iniciar cálculo Fibonacci",
+        "qMuro": "Colocar marcador de inicio",
+        "qScan": "Escanear hacia derecha",
+        "qEsc0": "Escribir zona de trabajo",
+        "qEsc1": "Escribir primer término F(1)=1",
+        "qCerr": "Cerrar término con separador",
+        "qRet": "Retornar al inicio de cinta",
+        "qLoop": "Inicio del ciclo principal",
+        "qChkC": "Verificar contador",
+        "qIrFin": "Ir al final de la cinta",
+        "qBuscar": "Buscar último término",
+        "qCop1": "Copiar término 1 (F(i))",
+        "qDep1": "Depositar dígito de término 1",
+        "qRet1": "Retornar a fuente término 1",
+        "qCop2": "Copiar término 2 (F(i-1))",
+        "qDep2": "Depositar dígito de término 2",
+        "qRet2": "Retornar a fuente término 2",
+        "qFinC": "Finalizar ciclo, agregar separador",
+        "qaccept": "Estado de aceptación"
+    },
+    
+    "leyenda_simbolos": {
+        "#": "Marcador de inicio de cinta",
+        ".": "Separador zona de contador y trabajo",
+        ";": "Separador entre términos Fibonacci",
+        "x": "Contador usado/procesado",
+        "y": "Marcador temporal copiando término 1",
+        "z": "Marcador temporal copiando término 2"
+    },
+    
+    "nota_secuencia": "Esta máquina calcula la secuencia 1, 1, 2, 3, 5, 8... (omitiendo F(0)=0 por convención)"
+}
