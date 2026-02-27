@@ -1,0 +1,317 @@
+================================================================================
+PROYECTO 1: MÁQUINA DE TURING - SUCESIÓN DE FIBONACCI
+Curso: Análisis y Diseño de Algoritmos (ADA)
+Fecha: Febrero 2026
+================================================================================
+
+RESUMEN EJECUTIVO
+-----------------
+Este proyecto implementa un simulador de Máquina de Turing determinista de una 
+sola cinta que calcula la sucesión de Fibonacci. El objetivo principal es 
+demostrar y analizar la COMPLEJIDAD EXPONENCIAL inherente a este tipo de 
+implementación computacional.
+
+La complejidad temporal resultante es O(φ^(2n)) ≈ O(2.618^n), donde φ es la 
+proporción áurea (≈1.618). Esto hace que la máquina sea extremadamente 
+ineficiente para valores grandes de n, lo cual es el "objetivo oculto" del 
+proyecto: demostrar cómo una implementación computacionalmente básica puede 
+tener un rendimiento catastrófico.
+
+================================================================================
+SECCIÓN 1: ¿QUÉ ES UNA MÁQUINA DE TURING?
+================================================================================
+
+Una Máquina de Turing es un modelo matemático de computación que define una 
+máquina abstracta capaz de manipular símbolos en una cinta según un conjunto 
+de reglas. Fue propuesta por Alan Turing en 1936.
+
+Componentes de nuestra máquina:
+- UNA SOLA CINTA: infinita en ambas direcciones
+- CABEZAL: lee y escribe símbolos, se mueve izquierda/derecha
+- ESTADOS: 24 estados que controlan el comportamiento
+- TRANSICIONES: 58 reglas que determinan las acciones
+- ALFABETO: {1, _, #, ., ;, x, y, z}
+
+La restricción de usar UNA SOLA CINTA es crucial para el análisis de 
+complejidad, ya que obliga a operaciones de búsqueda y copia que son 
+inherentemente costosas.
+
+================================================================================
+SECCIÓN 2: EL PROBLEMA - CALCULAR FIBONACCI
+================================================================================
+
+La sucesión de Fibonacci es: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144...
+
+Donde cada término es la suma de los dos anteriores:
+  F(n) = F(n-1) + F(n-2)
+  Casos base: F(1) = 1, F(2) = 1
+
+REPRESENTACIÓN UNARIA:
+Los números se representan contando "unos":
+  0 → (vacío)
+  1 → 1
+  2 → 11
+  3 → 111
+  5 → 11111
+  8 → 11111111
+
+Esta representación es natural para máquinas de Turing pero es 
+EXPONENCIALMENTE INEFICIENTE porque el número de Fibonacci F(n) crece 
+exponencialmente con n, y su representación unaria requiere F(n) símbolos.
+
+================================================================================
+SECCIÓN 3: FUNCIONAMIENTO DE LA MÁQUINA
+================================================================================
+
+FORMATO DE LA CINTA:
+#[contador].[término1];[término2];...;[términoN];
+
+Donde:
+- # = Marcador de inicio
+- contador = 'x' indica iteración consumida, '1' indica restante  
+- . = Separador entre contador y zona de trabajo
+- ; = Separador entre términos Fibonacci
+- términoK = número Fibonacci en unario
+
+EJEMPLO PARA n=5:
+Entrada:     11111
+Paso 1:      #x1111.
+Paso 2:      #x1111.;1;
+Iteración 1: #xx111.;1;1;
+Iteración 2: #xxx11.;1;1;11;
+Iteración 3: #xxxx1.;1;1;11;111;
+Iteración 4: #xxxxx.;1;1;11;111;11111;
+Resultado:   F(5) = 5 (representado como "11111")
+
+FASES DEL ALGORITMO:
+
+1. VERIFICACIÓN DE PARIDAD
+   Estados qParE/qParO alternan detectando si n es par o impar
+   (Simula memoria cache sin usar almacenamiento adicional)
+
+2. PREPARACIÓN
+   - Marca primer dígito como 'x' (contador consumido)
+   - Coloca marcador '#' al inicio
+   - Escribe zona de trabajo: ".;1;" (primer término F(1)=1)
+
+3. CICLO PRINCIPAL (se repite n-1 veces)
+   Para cada iteración:
+   a) Verificar contador (qChkC)
+   b) Ir al final de la cinta (qIrFin, qBuscar)
+   c) Copiar último término F(i) dígito por dígito (qCop1, qDep1, qRet1)
+   d) Copiar penúltimo término F(i-1) dígito por dígito (qCop2, qDep2, qRet2)
+   e) Cerrar nuevo término con ';' (qFinC)
+   f) Volver al inicio (qRet)
+
+4. TERMINACIÓN
+   Cuando el contador se agota (todos 'x'), entra a qaccept
+
+================================================================================
+SECCIÓN 4: ANÁLISIS DE COMPLEJIDAD - ¿POR QUÉ ES EXPONENCIAL?
+================================================================================
+
+LA PREGUNTA CLAVE: ¿Por qué esta máquina tiene complejidad O(2.618^n)?
+
+FACTOR 1: TAMAÑO DE LOS NÚMEROS FIBONACCI (φ^n)
+----------------------------------------------
+Los números de Fibonacci crecen exponencialmente según la fórmula de Binet:
+
+  F(n) ≈ φ^n / √5   donde φ = (1+√5)/2 ≈ 1.618
+
+Por lo tanto, F(n) = Θ(φ^n)
+
+Esto significa que el ÚLTIMO TÉRMINO que calculamos, F(n), tiene LONGITUD 
+proporcional a φ^n en representación unaria.
+
+FACTOR 2: TRABAJO POR ITERACIÓN (φ^n)
+-------------------------------------
+Cada iteración del ciclo principal debe:
+- Ir al final de la cinta: recorrer ~F(1)+F(2)+...+F(i) símbolos
+- Copiar F(i): leer símbolo, ir al final, escribir, volver (×F(i) veces)
+- Copiar F(i-1): mismo proceso (×F(i-1) veces)
+
+El trabajo en la iteración i es proporcional a:
+  W_i = O(F(i) + F(i-1)) = O(F(i+1))
+
+CÁLCULO TOTAL:
+--------------
+El tiempo total es la suma del trabajo en todas las iteraciones:
+
+  T(n) = Σ(i=1 a n) W_i = Σ(i=1 a n) O(F(i))
+
+Usando la identidad: Σ F(i) = F(n+2) - 1
+
+Entonces: T(n) = O(F(n+2)) = O(φ^n)
+
+PERO HAY MÁS: Para cada dígito que copiamos, debemos recorrer TODA la secuencia
+acumulada. Esto multiplica el trabajo por otro factor de F(n), dando:
+
+  T(n) = O(F(n) × F(n)) = O(φ^n × φ^n) = O(φ^(2n)) ≈ O(2.618^n)
+
+================================================================================
+SECCIÓN 5: VERIFICACIÓN EMPÍRICA
+================================================================================
+
+DATOS EXPERIMENTALES REALES:
+
+| n  | F(n) | Pasos      | Ratio T(n)/T(n-1) | Tiempo    |
+|----|------|------------|-------------------|-----------|
+| 0  | 0    | 1          | -                 | 0.005ms   |
+| 1  | 1    | 19         | 19.00             | 0.08ms    |
+| 2  | 1    | 53         | 2.79              | 0.17ms    |
+| 3  | 2    | 109        | 2.06              | 0.40ms    |
+| 4  | 3    | 191        | 1.75              | 0.71ms    |
+| 5  | 5    | 331        | 1.73              | 1.5ms     |
+| 6  | 8    | 585        | 1.77              | 3.0ms     |
+| 7  | 13   | 1,105      | 1.89              | 6.8ms     |
+| 8  | 21   | 2,255      | 2.04              | 20ms      |
+| 9  | 34   | 4,971      | 2.20              | 55ms      |
+| 10 | 55   | 11,641     | 2.34              | 154ms     |
+| 11 | 89   | 28,449     | 2.44              | 545ms     |
+| 12 | 144  | 71,443     | 2.51              | 2.26s     |
+| 13 | 233  | 182,439    | 2.55              | 10.0s     |
+| 14 | 377  | 470,561    | 2.58              | 49.4s     |
+| 15 | 610  | 1,220,961  | 2.59              | 3.5min    |
+
+OBSERVACIONES CLAVE:
+
+1. EL RATIO CONVERGE A ~2.59 ≈ φ² ≈ 2.618
+   Esto confirma T(n) = O(φ^(2n))
+
+2. CRECIMIENTO EXPLOSIVO:
+   - De n=10 a n=15: los pasos aumentan de 11,641 a 1,220,961 (×105)
+   - De n=12 a n=15: el tiempo aumenta de 2.26s a 207s (×92)
+
+3. IMPRACTICIDAD:
+   - n=15 requiere más de 1.2 MILLONES de pasos y 3.5 minutos
+   - Extrapolando: n=20 tomaría aproximadamente 20 HORAS
+   - n=25 tomaría aproximadamente 2 AÑOS
+
+================================================================================
+SECCIÓN 6: COMPARACIÓN CON OTRAS IMPLEMENTACIONES
+================================================================================
+
+| Implementación                  | Complejidad Temporal | Complejidad Espacial |
+|---------------------------------|----------------------|----------------------|
+| MT de una cinta (este proyecto) | O(φ^2n) ≈ O(2.618^n)| O(φ^n)               |
+| Recursión ingenua               | O(φ^n)               | O(n)                 |
+| Programación dinámica           | O(n)                 | O(n) o O(1)          |
+| Exponenciación de matrices      | O(log n)             | O(1)                 |
+
+CONCLUSIÓN DE LA COMPARACIÓN:
+Nuestra Máquina de Turing es DOBLEMENTE EXPONENCIAL comparada con la 
+programación dinámica. Para calcular F(20):
+- Programación dinámica: ~20 operaciones
+- Nuestra MT: ~80,000,000 pasos (estimado)
+
+Esto demuestra cómo las restricciones del modelo computacional (una sola cinta,
+representación unaria) pueden hacer que un problema simple se vuelva 
+computacionalmente intratable.
+
+================================================================================
+SECCIÓN 7: ¿POR QUÉ IMPORTA ESTO EN ANÁLISIS DE ALGORITMOS?
+================================================================================
+
+LECCIONES FUNDAMENTALES:
+
+1. LA REPRESENTACIÓN IMPORTA
+   Usar notación unaria vs binaria cambia la complejidad dramáticamente.
+   En binario, los números ocupan O(log n) espacio; en unario, O(n).
+
+2. EL MODELO COMPUTACIONAL IMPORTA  
+   Una máquina de Turing de UNA cinta es más limitada que una de múltiples 
+   cintas o una RAM. Las operaciones que en una computadora moderna son O(1)
+   (como acceso a memoria) en una MT de una cinta son O(n).
+
+3. LA NOTACIÓN O CAPTURA EL CRECIMIENTO
+   O(φ^(2n)) vs O(n) representa la diferencia entre:
+   - "Completar en microsegundos" 
+   - "Nunca terminar en tiempo humanamente razonable"
+
+4. COMPLEJIDAD INHERENTE VS COMPLEJIDAD DE IMPLEMENTACIÓN
+   Fibonacci tiene solución O(n) e incluso O(log n), pero nuestra 
+   implementación deliberadamente ineficiente demuestra cómo las 
+   restricciones pueden hacer explotar la complejidad.
+
+================================================================================
+SECCIÓN 8: ESTRUCTURA DEL PROYECTO
+================================================================================
+
+ARCHIVOS PRINCIPALES:
+
+maquinas/fibonacci.json
+  - Definición completa de la MT (24 estados, 58 transiciones)
+  - Alfabeto, estados, transiciones en formato JSON
+
+src/turing_machine.py
+  - Implementación del simulador de MT
+  - Clase TuringMachine con métodos step(), run(), get_result()
+
+src/tape.py
+  - Implementación de la cinta infinita
+  - Soporta lectura/escritura y expansión dinámica
+
+src/analysis.py
+  - Análisis empírico de rendimiento
+  - Mide pasos y tiempo para diferentes valores de n
+
+src/plotting.py
+  - Generación de gráficos
+  - Regresión exponencial y análisis de convergencia
+
+documentacion/
+  - ANALISIS_COMPLEJIDAD.md: Análisis matemático formal
+  - CONVENCIONES.md: Formato de entrada/salida
+  - DIAGRAMA_MT.md: Diagrama de estados y transiciones
+
+resultados/
+  - analysis_*.json: Datos empíricos en JSON
+  - grafico_*.png: Visualizaciones del crecimiento exponencial
+
+================================================================================
+SECCIÓN 9: CONCLUSIONES
+================================================================================
+
+1. COMPLEJIDAD DEMOSTRADA: T(n) = O(φ^(2n)) ≈ O(2.618^n)
+
+2. CAUSA DE LA COMPLEJIDAD EXPONENCIAL:
+   - Representación unaria de números (F(n) = φ^n símbolos)
+   - Operaciones de copia que requieren recorrer toda la cinta
+   - Acumulación de todos los términos intermedios
+
+3. VERIFICACIÓN EMPÍRICA:
+   - El ratio de crecimiento converge a ~2.59 ≈ φ²
+   - Para n=15: 1,220,961 pasos en 3.5 minutos
+   - Crecimiento claramente exponencial
+
+4. RELEVANCIA PEDAGÓGICA:
+   - Demuestra la diferencia práctica entre O(n) y O(2^n)
+   - Ilustra cómo las restricciones del modelo afectan la eficiencia
+   - Muestra la importancia de elegir representaciones adecuadas
+
+5. MENSAJE CLAVE:
+   Un algoritmo que "funciona" matemáticamente puede ser 
+   computacionalmente inviable dependiendo de su implementación.
+
+================================================================================
+DATOS PARA GRÁFICOS EN LA PRESENTACIÓN
+================================================================================
+
+Gráfico 1: Pasos vs n (escala lineal)
+- Eje X: n (0 a 15)
+- Eje Y: Pasos (0 a 1,300,000)
+- Mostrar curva exponencial clásica
+
+Gráfico 2: Pasos vs n (escala logarítmica)
+- Eje X: n (0 a 15)
+- Eje Y: log(Pasos)
+- Debería verse como línea recta (confirma exponencial)
+
+Gráfico 3: Convergencia del Ratio
+- Eje X: n (3 a 15)
+- Eje Y: Ratio T(n)/T(n-1)
+- Mostrar convergencia hacia φ² ≈ 2.618
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================
