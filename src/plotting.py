@@ -47,42 +47,47 @@ def plot_exponential_analysis(results: list, output_dir: str,
         y_label = 'Tiempo (ms)'
         title = 'Tiempo de Ejecución vs Tamaño de Entrada\n(Complejidad Exponencial)'
     
-    # Crear figura con dos subplots: escala lineal y logarítmica
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    # Crear figura con un solo gráfico en escala lineal
+    fig, ax1 = plt.subplots(figsize=(10, 5))
     
-    # === Gráfico 1: Escala lineal ===
     ax1.scatter(n_values, y_values, color='blue', s=100, 
                 label='Datos observados', zorder=5, edgecolors='black')
     
-    # Intentar ajuste exponencial
+    # Curva teórica: escalar φ^{2n} para que ajuste visualmente los datos
     try:
-        # Usar valores iniciales basados en φ (razón áurea)
-        popt, pcov = curve_fit(exponential_func, n_values, y_values, 
-                               p0=[1, 1.618], maxfev=10000)
-        a, b = popt
+        phi2 = ((1 + 5**0.5) / 2) ** 2  # φ² ≈ 2.618
         
-        # Línea suave para la regresión exponencial
+        # Calcular el factor de escala óptimo para c * φ^{2n}
+        # minimizando error en log-space: log(y) ≈ log(c) + n*log(φ²)
+        log_y = np.log(y_values)
+        log_c = np.mean(log_y - n_values * np.log(phi2))
+        c = np.exp(log_c)
+        
+        # Línea teórica
         x_smooth = np.linspace(n_values.min(), n_values.max(), 100)
-        y_smooth = exponential_func(x_smooth, a, b)
+        y_theo = c * np.power(phi2, x_smooth)
         
-        ax1.plot(x_smooth, y_smooth, color='red', linewidth=2,
-                 label=f'Regresión: {a:.2f} × {b:.3f}ⁿ')
+        ax1.plot(x_smooth, y_theo, color='red', linewidth=2,
+                 label=f'Modelo teórico: {c:.2f} × φ²ⁿ')
         
-        # Calcular R²
-        y_pred = exponential_func(n_values, a, b)
-        ss_res = np.sum((y_values - y_pred) ** 2)
-        ss_tot = np.sum((y_values - np.mean(y_values)) ** 2)
-        r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+        # Calcular ratio promedio real (últimos 5 puntos)
+        ratios = []
+        for i in range(1, len(y_values)):
+            if y_values[i-1] > 0:
+                ratios.append(y_values[i] / y_values[i-1])
+        avg_ratio_last = np.mean(ratios[-5:]) if len(ratios) >= 5 else np.mean(ratios)
         
-        # Anotación con información
-        info_text = f'f(n) = {a:.2f} × {b:.3f}ⁿ\nR² = {r2:.4f}\nBase ≈ φ = 1.618'
+        # Anotación informativa
+        info_text = (f'Modelo: c × φ²ⁿ\n'
+                     f'φ² = {phi2:.3f}\n'
+                     f'Ratio T(n)/T(n-1) → {avg_ratio_last:.3f}')
         ax1.text(0.05, 0.95, info_text, transform=ax1.transAxes,
                  fontsize=10, verticalalignment='top',
                  bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         
-        exp_base = b
+        exp_base = phi2
     except Exception as e:
-        print(f"Advertencia: No se pudo ajustar exponencial: {e}")
+        print(f"Advertencia: No se pudo generar curva teórica: {e}")
         exp_base = None
     
     ax1.set_xlabel('n (Tamaño de entrada)', fontsize=12)
@@ -90,22 +95,6 @@ def plot_exponential_analysis(results: list, output_dir: str,
     ax1.set_title(title, fontsize=12)
     ax1.legend(loc='lower right')
     ax1.grid(True, alpha=0.3)
-    
-    # === Gráfico 2: Escala logarítmica ===
-    ax2.scatter(n_values, y_values, color='blue', s=100, 
-                label='Datos observados', zorder=5, edgecolors='black')
-    ax2.set_yscale('log')
-    
-    # En escala log, una exponencial debería verse como línea recta
-    if exp_base:
-        ax2.plot(x_smooth, y_smooth, color='red', linewidth=2,
-                 label=f'O(φⁿ) donde φ≈{exp_base:.3f}')
-    
-    ax2.set_xlabel('n (Tamaño de entrada)', fontsize=12)
-    ax2.set_ylabel(f'{y_label} (escala log)', fontsize=12)
-    ax2.set_title('Escala Logarítmica\n(Línea recta = crecimiento exponencial)', fontsize=12)
-    ax2.legend(loc='lower right')
-    ax2.grid(True, alpha=0.3, which='both')
     
     plt.tight_layout()
     
