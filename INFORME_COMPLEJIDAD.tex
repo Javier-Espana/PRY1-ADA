@@ -1,0 +1,66 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\title{Análisis de Complejidad de la Máquina de Turing de una Sola Cinta para Fibonacci}
+\author{Javier España}
+\date{27 de febrero de 2026}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{Introducción}
+Este informe presenta un análisis detallado sobre la complejidad computacional de una Máquina de Turing de una sola cinta diseñada para calcular la función de Fibonacci. El objetivo principal es entender por qué la complejidad de este algoritmo es exponencial y cómo se manifiesta en la práctica.
+
+\section{Descripción del Problema}
+El problema consiste en calcular el número de Fibonacci $F(n)$ usando una Máquina de Turing de una sola cinta. La entrada es el número $n$ codificado en la cinta, y la máquina debe producir $F(n)$ como resultado.
+
+\section{Modelo de Máquina de Turing}
+La máquina utilizada está definida en el archivo \texttt{maquinas/fibonacci.json}. Se trata de una máquina de Turing clásica, con una sola cinta y un conjunto de reglas que simulan el cálculo iterativo de Fibonacci.
+
+\subsection{Funcionamiento General}
+El algoritmo implementa la suma iterativa de los dos últimos valores para obtener el siguiente número de Fibonacci, copiando y desplazando símbolos en la cinta.
+
+\section{Análisis de Complejidad}
+El análisis de complejidad se centra en el número de pasos (transiciones) que la máquina realiza para calcular $F(n)$. Se observa que la complejidad es exponencial respecto al tamaño de la entrada $n$.
+
+\subsection{Causas de la Complejidad Exponencial}
+\begin{itemize}
+    \item \textbf{Copias sucesivas:} Cada iteración requiere copiar el resultado anterior, lo que implica recorrer toda la cinta varias veces.
+    \item \textbf{Desplazamientos:} El movimiento de la cabeza para copiar y sumar implica muchos desplazamientos redundantes.
+    \item \textbf{Crecimiento de la cinta:} El tamaño de la cinta crece con cada iteración, aumentando el costo de las operaciones.
+\end{itemize}
+
+\subsection{Evidencia Empírica}
+Se realizaron simulaciones para diferentes valores de $n$, registrando el número de pasos y el tiempo de ejecución. Los resultados muestran un crecimiento exponencial, como se observa en la siguiente gráfica:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{presentacion/08_grafica_complejidad.png}
+    \caption{Crecimiento exponencial del número de pasos respecto a $n$}
+\end{figure}
+
+\section{Implicaciones}
+La complejidad exponencial limita la viabilidad de este enfoque para valores grandes de $n$. El análisis muestra que, aunque la Máquina de Turing es universal, su eficiencia depende fuertemente del modelo y la codificación utilizada.
+
+\section{Conclusiones}
+\begin{itemize}
+    \item La Máquina de Turing de una sola cinta para Fibonacci presenta complejidad exponencial.
+    \item El principal factor es la necesidad de copiar y desplazar grandes bloques de información en cada iteración.
+    \item Este caso ilustra la diferencia entre computabilidad y eficiencia: aunque el problema es computable, no es eficiente en este modelo.
+\end{itemize}
+
+\section{Referencias}
+\begin{itemize}
+    \item Documentación del proyecto: \texttt{documentacion/ANALISIS_COMPLEJIDAD.md}
+    \item Código fuente: \texttt{src/}
+    \item Máquina de Turing: \texttt{maquinas/fibonacci.json}
+    \item Resultados empíricos: \texttt{resultados/}
+\end{itemize}
+
+\end{document}
