@@ -4,7 +4,7 @@
 
 Calcula F(n) usando una sola cinta. Símbolos: 1=unario, #=inicio, .=zona trabajo, ;=separador términos, x=contador usado, y/z=marcadores temporales
 
-> **Generado automáticamente:** 2026-02-27 12:46:13
+> **Generado automáticamente:** 2026-03-27 16:10:30
 
 ## Estadísticas
 
