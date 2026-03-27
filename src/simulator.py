@@ -58,15 +58,22 @@ def run_simulation(machine: TuringMachine, input_str: str,
         print("="*60)
         
         # Decidir cuántos pasos mostrar
-        total_steps = len(machine.history)
+        print_history(machine.history, show_all=True)
+
+    print_summary(machine, input_str)
+    
+    return (accepted, machine.step_count, machine.get_result())
+
+"""
+Para limitar la cantidad de pasos mostrados, se puede modificar la función print_history
+
+ total_steps = len(machine.history)
         if total_steps <= 50:
             print_history(machine.history, show_all=True)
         else:
             print_history(machine.history, max_display=30)
     
-    print_summary(machine, input_str)
-    
-    return (accepted, machine.step_count, machine.get_result())
+"""
 
 
 def to_unary(input_str: str) -> str:

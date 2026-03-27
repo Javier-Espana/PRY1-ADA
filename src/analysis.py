@@ -130,7 +130,7 @@ def print_results_table(results: list):
         prev_steps = r['steps']
     
     print("=" * 90)
-    print("\nNota: El ratio tiende a φ ≈ 1.618 (razón áurea), confirmando O(φⁿ)")
+    print("\nNota: El ratio tiende a φ ≈ 1.618 (razón áurea), complejidad O(φⁿ)²")
 
 
 def run_analysis_adaptive(config_path: str, max_n: int = 14, 
@@ -152,7 +152,7 @@ def run_analysis_adaptive(config_path: str, max_n: int = 14,
     results = []
     
     print(f"\n{'='*60}")
-    print("ANÁLISIS EMPÍRICO - Complejidad Exponencial O(φⁿ)")
+    print("ANÁLISIS EMPÍRICO - Complejidad Exponencial O(φⁿ)²")
     print(f"{'='*60}")
     print(f"Límite de tiempo por medición: {time_limit}s")
     print(f"Rango de n: 0 a {max_n}")
